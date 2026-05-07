@@ -11,6 +11,9 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: read
+
 concurrency:
   group: exhaustive-tests-${{ github.ref }}
   cancel-in-progress: false
