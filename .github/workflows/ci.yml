@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            packaging/package-lock.json
+
+      - name: Install repo dependencies
+        run: npm ci --omit=optional
+
+      - name: Install packaging dependencies
+        run: npm ci --prefix packaging
+
+      - name: Run static sanity checks
+        run: npm run ci:sanity
+
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            packaging/package-lock.json
+
+      - name: Install repo dependencies
+        run: npm ci --omit=optional
+
+      - name: Install packaging dependencies
+        run: npm ci --prefix packaging
+
+      - name: Run unit lane
+        run: npm run test:lane -- --lane unit --results-dir "${RUNNER_TEMP}/space-agent-test-results/unit" --json-output "${RUNNER_TEMP}/space-agent-test-results/unit/summary.json"
+
+      - name: Upload unit lane failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-unit-failure-artifacts
+          path: ${{ runner.temp }}/space-agent-test-results/unit
+          if-no-files-found: ignore
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            packaging/package-lock.json
+
+      - name: Install repo dependencies
+        run: npm ci --omit=optional
+
+      - name: Install packaging dependencies
+        run: npm ci --prefix packaging
+
+      - name: Run integration lane
+        run: npm run test:lane -- --lane integration --results-dir "${RUNNER_TEMP}/space-agent-test-results/integration" --json-output "${RUNNER_TEMP}/space-agent-test-results/integration/summary.json"
+
+      - name: Upload integration lane failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-integration-failure-artifacts
+          path: ${{ runner.temp }}/space-agent-test-results/integration
+          if-no-files-found: ignore
+
+  desktop_e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            packaging/package-lock.json
+
+      - name: Install repo dependencies
+        run: npm ci --omit=optional
+
+      - name: Install packaging dependencies
+        run: npm ci --prefix packaging
+
+      - name: Run desktop e2e lane
+        run: xvfb-run -a npm run test:lane -- --lane desktop-e2e --results-dir "${RUNNER_TEMP}/space-agent-test-results/desktop-e2e" --json-output "${RUNNER_TEMP}/space-agent-test-results/desktop-e2e/summary.json"
+
+      - name: Upload desktop e2e lane failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-desktop-e2e-failure-artifacts
+          path: ${{ runner.temp }}/space-agent-test-results/desktop-e2e
+          if-no-files-found: ignore

@@ -104,15 +104,22 @@ Current build behavior:
 
 Repo-level desktop publishing lives in `.github/workflows/release-desktop.yml`.
 
+Release-quality validation lanes live in:
+
+- `.github/workflows/ci.yml` for PR-safe deterministic lanes (`sanity`, `unit`, `integration`, `desktop e2e`) with failure artifacts
+- `.github/workflows/exhaustive-tests.yml` for scheduled or manual exhaustive coverage, including heavy desktop e2e plus optional stress or perf informational lanes with persisted result artifacts
+
 Current release contract:
 
 - the workflow runs automatically on pushed `v*` tags
 - normal `main` branch pushes do not publish desktop releases unless the `v*` tag ref is pushed too
 - automatic tag-push runs publish desktop artifacts when the selected tag is already on `origin/main` history and no newer `v*` tag is already on `origin/main` after it
 - manual `workflow_dispatch` runs require an existing Git tag input and use that same gate, so failed or partial releases can be rebuilt after `main` has advanced as long as no newer release tag has already landed on `main` after the requested one
+- release publishing is gated by a dedicated pre-build `release_preflight` validation lane (`npm run test:release:preflight`) before any cross-platform packaging starts
 - fresh builds cover Windows, macOS, and Linux on both x64 and arm64 runners
 - local and CI builds share the same packaging scripts, with CI passing the tag-derived semver build version through `SPACE_APP_VERSION`
 - release notes are generated automatically from the commit range between the previous published release and the current tag, with an empty previous tag allowed when no prior published release is available, and CI prepends a fixed `## Downloads` table that links the canonical DMG, AppImage, and EXE assets for x86 and ARM before requiring the OpenRouter prompt helper under `packaging/resources/release-notes/` to return a non-empty AI-written body whose Markdown starts directly with the overview paragraph instead of repeating the release title, tag, or version that GitHub already renders outside the body
+- post-build staging now has an explicit `validate_artifacts` gate that merges updater metadata, stages canonical assets, verifies required installers and updater metadata naming through `packaging/scripts/release-assets-verify.js`, and can optionally run packaged-asset smoke checks for manual release dispatches before publish
 - the publish job merges per-arch macOS and Windows updater metadata, promotes Linux updater metadata into the canonical root names `metadata-latest-windows.yml`, `metadata-latest-mac.yml`, `metadata-latest-linux.yml`, and `metadata-latest-linux-arm64.yml`, rewrites those metadata files to the final canonical updater filenames, stages only the kept public installers according to `packaging/release-asset-filters.yaml`, and uploads the minimal updater payload set: NSIS installers, AppImages, canonical macOS updater zips, and metadata files
 - staged public installer files use uniform `Space-Agent-<release version>-<platform>-<arch>.<extension>` asset names, while macOS updater zips use `Space-Agent-<release version>-macos-<arch>-update.zip`; when the semver patch is `0`, the workflow strips that redundant third number so tags such as `v0.40.0` publish as `Space-Agent-0.40-<platform>-<arch>.<extension>` and `Space-Agent-0.40-macos-<arch>-update.zip`, while the packaged app itself keeps the full semver build version required by the desktop toolchain
 - every release run rebuilds fresh desktop artifacts, updates the GitHub Release for the selected tag, removes stale unprefixed selected-asset names left by older workflow attempts, and uploads that selected artifact set with `--clobber` so manual reruns replace failed or stale assets instead of publishing a second release

@@ -1,0 +1,105 @@
+name: Exhaustive Tests
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      run_stress:
+        description: Run optional stress/perf informational lanes
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: exhaustive-tests-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  exhaustive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            packaging/package-lock.json
+
+      - name: Install repo dependencies
+        run: npm ci --omit=optional
+
+      - name: Install packaging dependencies
+        run: npm ci --prefix packaging
+
+      - name: Run exhaustive nightly lane
+        run: xvfb-run -a npm run test:lane -- --lane main-nightly --allow-flaky-retries --results-dir "${RUNNER_TEMP}/space-agent-test-results/main-nightly" --json-output "${RUNNER_TEMP}/space-agent-test-results/main-nightly/summary.json"
+
+      - name: Upload exhaustive lane artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exhaustive-main-nightly-results-${{ github.run_id }}
+          path: ${{ runner.temp }}/space-agent-test-results/main-nightly
+          if-no-files-found: ignore
+
+  stress_read:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.run_stress == 'true')
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            packaging/package-lock.json
+
+      - name: Install repo dependencies
+        run: npm ci --omit=optional
+
+      - name: Run stress read lane
+        run: npm run test:stress:read | tee "${RUNNER_TEMP}/space-agent-test-results/stress-read.log"
+
+      - name: Upload stress read artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exhaustive-stress-read-results-${{ github.run_id }}
+          path: ${{ runner.temp }}/space-agent-test-results/stress-read.log
+          if-no-files-found: ignore
+
+  stress_write:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.run_stress == 'true')
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            packaging/package-lock.json
+
+      - name: Install repo dependencies
+        run: npm ci --omit=optional
+
+      - name: Run stress write lane
+        run: npm run test:stress:write | tee "${RUNNER_TEMP}/space-agent-test-results/stress-write.log"
+
+      - name: Upload stress write artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exhaustive-stress-write-results-${{ github.run_id }}
+          path: ${{ runner.temp }}/space-agent-test-results/stress-write.log
+          if-no-files-found: ignore

@@ -125,6 +125,15 @@ npm run dev # server with auto-reload
 
 Open the checked-in VS Code launch entry `Dev Server (npm run dev)` when you want breakpoints in `server/` code. It launches the same watcher and auto-attaches to the spawned `node space serve` process across restarts.
 
+### Release-quality validation (local)
+
+```bash
+npm run ci:sanity                 # packaging and repo dry-run checks
+npm run test:all                  # deterministic PR gate lanes
+npm run test:release:preflight    # release preflight lane
+npm run test:nightly              # exhaustive lane (includes heavy desktop e2e)
+```
+
 ### For production
 
 ```bash

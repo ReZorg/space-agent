@@ -38,6 +38,8 @@ Child doc section pattern:
 This scope owns:
 
 - repo-level test harnesses under `tests/`
+- `test-lane-catalog.json`: canonical lane map that classifies each `tests/*_test.mjs` entry as `unit`, `integration`, `desktop_e2e`, or `stress_perf`, marks heavy and flaky-prone coverage, and defines lane timeout plus retry policy used by local scripts and CI workflows
+- `run-lane.mjs`: canonical lane runner that executes one catalog lane at a time with explicit per-test attribution, bounded flaky retries only when the lane allows them, per-test duration capture, and JSON result artifacts for CI triage and historical tracking
 - `browser_component_harness_cli.mjs`: interactive and one-shot CLI wrapper around the standalone Electron browser-component harness; it launches the harness with parent IPC, buffers harness console output for the explicit `log` command instead of streaming it by default, prints `content` results as raw readable markdown, applies a 10-second timeout to harness readiness plus every IPC browser command so stuck requests fail fast instead of freezing the terminal, and lets operators call browser methods such as `open`, `state`, `dom`, `content`, `detail`, `click`, `type`, `typeSubmit`, `submit`, `scroll`, `back`, `forward`, and `reload`
 - `browser_address_bar_test.mjs`: focused browser-harness regression coverage for browser-like address-bar normalization so bare-host `open` input such as `localhost:3000` resolves to a real browser destination instead of an app-relative path
 - `browser_content_format_test.mjs`: focused browser-harness regression coverage for the lean typed-ref `content(...)` format, including image refs, URL fallback labels for empty links or images, compact state or semantic tags such as `[disabled muted button N]` or `[checked checkbox N]`, cheap visual-lite hidden-content filtering for `hidden`, `aria-hidden`, `display:none`, `visibility:hidden|collapse`, `content-visibility:hidden`, and `opacity:0` subtrees while still preserving visible `display: contents` descendants, dialog or structural containers with handler metadata staying readable instead of collapsing their whole body into one ref, low-token `[link N]` or `[button N]` or `[image N]` markers that still support `detail(...)`, action-result payloads that distinguish real visible reactions from no-op retries through `action.status` and `action.effect`, Trusted Types pages where helper-backed readable capture must fall back to live DOM instead of failing outright, and late same-document navigations that must not strand the harness bridge before a later `content(...)` read
@@ -81,6 +83,13 @@ This scope owns:
 ## Local Contracts
 
 - keep harnesses runnable from the CLI with explicit file paths or config-driven defaults
+- treat `test-lane-catalog.json` as the source of truth for lane ownership and release quality gates:
+  - PR gate lanes must stay deterministic and exclude heavy browser and stress suites
+  - main or nightly exhaustive lanes may include heavy desktop e2e and bounded retries only for catalog-marked flaky-prone tests
+  - stress or perf scripts remain non-blocking informational lanes and must not silently become required PR checks
+- keep lane retry policy strict: deterministic lanes use one attempt, and any lane with retries must scope them to explicitly marked flaky-prone tests
+- unstable suites should use explicit lane quarantine metadata in `test-lane-catalog.json` (`quarantined: true`) so deterministic PR gates exclude them while exhaustive lanes still run them until fixed
+- keep lane result artifacts machine-readable for CI triage by writing JSON summaries with per-test durations and failure reasons
 - keep provider config local to each harness and load secrets from environment or repo `.env`, never hardcode them
 - when a harness supports multiple models, keep model selection explicit in config or CLI and make saved results carry the model id
 - keep prompts, histories, cases, and results as separate files so evaluation remains reusable
