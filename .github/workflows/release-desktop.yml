@@ -10,6 +10,11 @@ on:
         description: Existing Git v* tag to rebuild and publish
         required: true
         type: string
+      run_packaged_smoke_checks:
+        description: Run optional packaged-asset smoke checks before publish
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -164,7 +169,7 @@ jobs:
         run: node packaging/scripts/release-notes.js --current-tag "$RELEASE_TAG" --previous-tag "$PREVIOUS_RELEASE_TAG" --require-ai >/dev/null
 
   build:
-    needs: prepare
+    needs: [prepare, release_preflight]
     if: needs.prepare.outputs.should_release == 'true'
     runs-on: ${{ matrix.runner }}
     env:
@@ -255,8 +260,83 @@ jobs:
           path: dist/desktop/${{ matrix.platform_dir }}/
           if-no-files-found: error
 
-  publish:
+  release_preflight:
+    needs: prepare
+    if: needs.prepare.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ needs.prepare.outputs.release_tag }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            packaging/package-lock.json
+
+      - name: Install repo dependencies
+        run: npm ci --omit=optional
+
+      - name: Install packaging dependencies
+        run: npm ci --prefix packaging
+
+      - name: Run release preflight tests
+        run: xvfb-run -a npm run test:release:preflight
+
+      - name: Upload release preflight artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-preflight-failure-artifacts
+          path: ${{ runner.temp }}/space-agent-test-results
+          if-no-files-found: ignore
+
+  validate_artifacts:
     needs: [prepare, build]
+    if: needs.prepare.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ needs.prepare.outputs.release_tag }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Merge updater metadata
+        run: node packaging/scripts/release-metadata-merge.js release-assets
+
+      - name: Stage release assets
+        env:
+          RELEASE_VERSION: ${{ needs.prepare.outputs.release_version }}
+        run: node packaging/scripts/release-assets-stage.js release-assets release-upload "$RELEASE_VERSION"
+
+      - name: Verify staged release assets
+        run: node packaging/scripts/release-assets-verify.js release-upload/.manifest.json
+
+      - name: Run optional packaged smoke checks
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_packaged_smoke_checks == 'true'
+        run: node packaging/scripts/release-assets-verify.js release-upload/.manifest.json --smoke-check
+
+      - name: Upload staged release validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-asset-validation
+          path: release-upload
+          if-no-files-found: ignore
+
+  publish:
+    needs: [prepare, build, validate_artifacts]
     if: needs.prepare.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     steps:
