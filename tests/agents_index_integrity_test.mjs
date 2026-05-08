@@ -53,9 +53,9 @@ test("root AGENTS file index paths exist in the repository", async () => {
   await Promise.all(
     uniquePaths.map(async (indexedPath) => {
       const repoRelativePath = indexedPath.replace(/^\/+/u, "");
-      const absolutePath = path.join(ROOT_DIR, repoRelativePath);
+      const absolutePath = path.resolve(ROOT_DIR, repoRelativePath);
 
-      if (!absolutePath.startsWith(`${ROOT_DIR}${path.sep}`)) {
+      if (absolutePath !== ROOT_DIR && !absolutePath.startsWith(`${ROOT_DIR}${path.sep}`)) {
         missingPaths.push(indexedPath);
         return;
       }
