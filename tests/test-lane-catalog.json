@@ -1,6 +1,9 @@
 {
   "version": 1,
   "tests": {
+    "agents_index_integrity_test.mjs": {
+      "category": "integration"
+    },
     "assistant_message_evaluation_test.mjs": {
       "category": "unit"
     },
@@ -13,8 +16,7 @@
     "browser_desktop_harness_test.mjs": {
       "category": "desktop_e2e",
       "flakyProne": true,
-      "heavy": true,
-      "quarantined": true
+      "heavy": true
     },
     "browser_runtime_navigation_wait_test.mjs": {
       "category": "unit"
@@ -68,20 +70,16 @@
       "category": "unit"
     },
     "prompt_budget_trim_test.mjs": {
-      "category": "unit",
-      "quarantined": true
+      "category": "unit"
     },
     "prompt_items_test.mjs": {
-      "category": "unit",
-      "quarantined": true
+      "category": "unit"
     },
     "promptinclude_test.mjs": {
-      "category": "unit",
-      "quarantined": true
+      "category": "unit"
     },
     "router_cache_headers_test.mjs": {
-      "category": "integration",
-      "quarantined": true
+      "category": "integration"
     },
     "server_cluster_read_stress_test.mjs": {
       "category": "stress_perf",
@@ -95,8 +93,7 @@
       "heavy": true
     },
     "set_command_test.mjs": {
-      "category": "integration",
-      "quarantined": true
+      "category": "integration"
     },
     "spaces_prompt_context_test.mjs": {
       "category": "unit"
@@ -128,7 +125,9 @@
   },
   "lanes": {
     "unit": {
-      "categories": ["unit"],
+      "categories": [
+        "unit"
+      ],
       "deterministic": true,
       "includeHeavy": true,
       "includeQuarantined": false,
@@ -137,10 +136,33 @@
         "maxAttempts": 1,
         "onlyFlakyProne": false
       },
-      "timeoutMs": 120000
+      "timeoutMs": 120000,
+      "tests": [
+        "assistant_message_evaluation_test.mjs",
+        "browser_runtime_navigation_wait_test.mjs",
+        "browser_skill_contract_test.mjs",
+        "browser_window_persistence_test.mjs",
+        "extensions_load_request_shape_test.mjs",
+        "framework_context_test.mjs",
+        "huggingface_prompt_shape_test.mjs",
+        "login_hooks_test.mjs",
+        "module_discovery_state_test.mjs",
+        "onscreen_agent_prompt_shape_test.mjs",
+        "onscreen_agent_turn_boundary_test.mjs",
+        "project_version_test.mjs",
+        "prompt_budget_trim_test.mjs",
+        "prompt_items_test.mjs",
+        "promptinclude_test.mjs",
+        "spaces_prompt_context_test.mjs",
+        "state_system_test.mjs",
+        "update_remote_test.mjs",
+        "yaml_lite_test.mjs"
+      ]
     },
     "integration": {
-      "categories": ["integration"],
+      "categories": [
+        "integration"
+      ],
       "deterministic": true,
       "includeHeavy": true,
       "includeQuarantined": false,
@@ -149,10 +171,29 @@
         "maxAttempts": 1,
         "onlyFlakyProne": false
       },
-      "timeoutMs": 240000
+      "timeoutMs": 240000,
+      "tests": [
+        "agents_index_integrity_test.mjs",
+        "customware_git_history_test.mjs",
+        "desktop_packaging_test.mjs",
+        "file_api_request_context_test.mjs",
+        "file_write_operations_test.mjs",
+        "github_auth_test.mjs",
+        "password_change_test.mjs",
+        "router_cache_headers_test.mjs",
+        "server_cluster_test.mjs",
+        "set_command_test.mjs",
+        "spaces_widget_import_test.mjs",
+        "supervise_command_test.mjs",
+        "user_folder_quota_test.mjs",
+        "user_home_tree_transient_test.mjs",
+        "watchdog_external_changes_test.mjs"
+      ]
     },
     "desktop-e2e": {
-      "categories": ["desktop_e2e"],
+      "categories": [
+        "desktop_e2e"
+      ],
       "deterministic": true,
       "includeHeavy": false,
       "includeQuarantined": false,
@@ -161,10 +202,16 @@
         "maxAttempts": 1,
         "onlyFlakyProne": false
       },
-      "timeoutMs": 420000
+      "timeoutMs": 420000,
+      "tests": [
+        "browser_address_bar_test.mjs",
+        "browser_content_format_test.mjs"
+      ]
     },
     "desktop-e2e-exhaustive": {
-      "categories": ["desktop_e2e"],
+      "categories": [
+        "desktop_e2e"
+      ],
       "deterministic": false,
       "includeHeavy": true,
       "includeQuarantined": true,
@@ -173,10 +220,19 @@
         "maxAttempts": 2,
         "onlyFlakyProne": true
       },
-      "timeoutMs": 600000
+      "timeoutMs": 600000,
+      "tests": [
+        "browser_address_bar_test.mjs",
+        "browser_content_format_test.mjs",
+        "browser_desktop_harness_test.mjs"
+      ]
     },
     "pr-gate": {
-      "categories": ["unit", "integration", "desktop_e2e"],
+      "categories": [
+        "unit",
+        "integration",
+        "desktop_e2e"
+      ],
       "deterministic": true,
       "includeHeavy": false,
       "includeQuarantined": false,
@@ -185,10 +241,52 @@
         "maxAttempts": 1,
         "onlyFlakyProne": false
       },
-      "timeoutMs": 420000
+      "timeoutMs": 420000,
+      "tests": [
+        "agents_index_integrity_test.mjs",
+        "assistant_message_evaluation_test.mjs",
+        "browser_address_bar_test.mjs",
+        "browser_content_format_test.mjs",
+        "browser_runtime_navigation_wait_test.mjs",
+        "browser_skill_contract_test.mjs",
+        "browser_window_persistence_test.mjs",
+        "customware_git_history_test.mjs",
+        "desktop_packaging_test.mjs",
+        "extensions_load_request_shape_test.mjs",
+        "file_api_request_context_test.mjs",
+        "file_write_operations_test.mjs",
+        "framework_context_test.mjs",
+        "github_auth_test.mjs",
+        "huggingface_prompt_shape_test.mjs",
+        "login_hooks_test.mjs",
+        "module_discovery_state_test.mjs",
+        "onscreen_agent_prompt_shape_test.mjs",
+        "onscreen_agent_turn_boundary_test.mjs",
+        "password_change_test.mjs",
+        "project_version_test.mjs",
+        "prompt_budget_trim_test.mjs",
+        "prompt_items_test.mjs",
+        "promptinclude_test.mjs",
+        "router_cache_headers_test.mjs",
+        "server_cluster_test.mjs",
+        "set_command_test.mjs",
+        "spaces_prompt_context_test.mjs",
+        "spaces_widget_import_test.mjs",
+        "state_system_test.mjs",
+        "supervise_command_test.mjs",
+        "update_remote_test.mjs",
+        "user_folder_quota_test.mjs",
+        "user_home_tree_transient_test.mjs",
+        "watchdog_external_changes_test.mjs",
+        "yaml_lite_test.mjs"
+      ]
     },
     "release-preflight": {
-      "categories": ["unit", "integration", "desktop_e2e"],
+      "categories": [
+        "unit",
+        "integration",
+        "desktop_e2e"
+      ],
       "deterministic": true,
       "includeHeavy": false,
       "includeQuarantined": false,
@@ -197,10 +295,52 @@
         "maxAttempts": 1,
         "onlyFlakyProne": false
       },
-      "timeoutMs": 420000
+      "timeoutMs": 420000,
+      "tests": [
+        "agents_index_integrity_test.mjs",
+        "assistant_message_evaluation_test.mjs",
+        "browser_address_bar_test.mjs",
+        "browser_content_format_test.mjs",
+        "browser_runtime_navigation_wait_test.mjs",
+        "browser_skill_contract_test.mjs",
+        "browser_window_persistence_test.mjs",
+        "customware_git_history_test.mjs",
+        "desktop_packaging_test.mjs",
+        "extensions_load_request_shape_test.mjs",
+        "file_api_request_context_test.mjs",
+        "file_write_operations_test.mjs",
+        "framework_context_test.mjs",
+        "github_auth_test.mjs",
+        "huggingface_prompt_shape_test.mjs",
+        "login_hooks_test.mjs",
+        "module_discovery_state_test.mjs",
+        "onscreen_agent_prompt_shape_test.mjs",
+        "onscreen_agent_turn_boundary_test.mjs",
+        "password_change_test.mjs",
+        "project_version_test.mjs",
+        "prompt_budget_trim_test.mjs",
+        "prompt_items_test.mjs",
+        "promptinclude_test.mjs",
+        "router_cache_headers_test.mjs",
+        "server_cluster_test.mjs",
+        "set_command_test.mjs",
+        "spaces_prompt_context_test.mjs",
+        "spaces_widget_import_test.mjs",
+        "state_system_test.mjs",
+        "supervise_command_test.mjs",
+        "update_remote_test.mjs",
+        "user_folder_quota_test.mjs",
+        "user_home_tree_transient_test.mjs",
+        "watchdog_external_changes_test.mjs",
+        "yaml_lite_test.mjs"
+      ]
     },
     "main-nightly": {
-      "categories": ["unit", "integration", "desktop_e2e"],
+      "categories": [
+        "unit",
+        "integration",
+        "desktop_e2e"
+      ],
       "deterministic": false,
       "includeHeavy": true,
       "includeQuarantined": true,
@@ -209,7 +349,46 @@
         "maxAttempts": 2,
         "onlyFlakyProne": true
       },
-      "timeoutMs": 600000
+      "timeoutMs": 600000,
+      "tests": [
+        "agents_index_integrity_test.mjs",
+        "assistant_message_evaluation_test.mjs",
+        "browser_address_bar_test.mjs",
+        "browser_content_format_test.mjs",
+        "browser_desktop_harness_test.mjs",
+        "browser_runtime_navigation_wait_test.mjs",
+        "browser_skill_contract_test.mjs",
+        "browser_window_persistence_test.mjs",
+        "customware_git_history_test.mjs",
+        "desktop_packaging_test.mjs",
+        "extensions_load_request_shape_test.mjs",
+        "file_api_request_context_test.mjs",
+        "file_write_operations_test.mjs",
+        "framework_context_test.mjs",
+        "github_auth_test.mjs",
+        "huggingface_prompt_shape_test.mjs",
+        "login_hooks_test.mjs",
+        "module_discovery_state_test.mjs",
+        "onscreen_agent_prompt_shape_test.mjs",
+        "onscreen_agent_turn_boundary_test.mjs",
+        "password_change_test.mjs",
+        "project_version_test.mjs",
+        "prompt_budget_trim_test.mjs",
+        "prompt_items_test.mjs",
+        "promptinclude_test.mjs",
+        "router_cache_headers_test.mjs",
+        "server_cluster_test.mjs",
+        "set_command_test.mjs",
+        "spaces_prompt_context_test.mjs",
+        "spaces_widget_import_test.mjs",
+        "state_system_test.mjs",
+        "supervise_command_test.mjs",
+        "update_remote_test.mjs",
+        "user_folder_quota_test.mjs",
+        "user_home_tree_transient_test.mjs",
+        "watchdog_external_changes_test.mjs",
+        "yaml_lite_test.mjs"
+      ]
     }
   }
 }

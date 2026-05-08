@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import path from "node:path";
+import { PassThrough } from "node:stream";
 import test from "node:test";
 
 import { FILE_INDEX_AREA } from "../server/runtime/state_areas.js";
@@ -11,28 +12,26 @@ const PROJECT_ROOT = ROOT_DIR;
 const PAGES_DIR = path.join(ROOT_DIR, "server", "pages");
 
 function createMockResponse() {
-  let resolveResult = null;
+  let statusCode = null;
+  let headers = null;
+  const chunks = [];
+  const response = new PassThrough();
   const result = new Promise((resolve) => {
-    resolveResult = resolve;
+    response.on("data", (chunk) => {
+      chunks.push(Buffer.from(chunk));
+    });
+    response.on("finish", () => {
+      resolve({
+        body: Buffer.concat(chunks).toString("utf8"),
+        headers: headers || {},
+        statusCode
+      });
+    });
   });
 
-  const response = {
-    finished: false,
-    headers: null,
-    statusCode: null,
-    writableEnded: false,
-    writeHead(statusCode, headers = {}) {
-      this.statusCode = statusCode;
-      this.headers = { ...headers };
-    },
-    end(body = "") {
-      this.writableEnded = true;
-      resolveResult({
-        body: Buffer.isBuffer(body) ? body.toString("utf8") : String(body || ""),
-        headers: this.headers || {},
-        statusCode: this.statusCode
-      });
-    }
+  response.writeHead = (nextStatusCode, nextHeaders = {}) => {
+    statusCode = nextStatusCode;
+    headers = { ...nextHeaders };
   };
 
   return { response, result };

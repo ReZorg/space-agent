@@ -1,4 +1,4 @@
-import { DEFAULT_PROMPT_BUDGET_RATIOS, normalizePromptBudgetRatios } from "/mod/_core/agent_prompt/prompt-items.js";
+import { DEFAULT_PROMPT_BUDGET_RATIOS, normalizePromptBudgetRatios } from "../agent_prompt/prompt-items.js";
 
 export const ONSCREEN_AGENT_CONFIG_PATH = "~/conf/onscreen-agent.yaml";
 export const ONSCREEN_AGENT_HISTORY_PATH = "~/hist/onscreen-agent.json";

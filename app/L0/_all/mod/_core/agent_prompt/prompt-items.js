@@ -1,4 +1,4 @@
-import { countTextTokens } from "/mod/_core/framework/js/token-count.js";
+import { countTextTokens } from "../framework/js/token-count.js";
 
 export const DEFAULT_PROMPT_BUDGET_RATIOS = Object.freeze({
   history: 40,

@@ -1,4 +1,4 @@
-import * as sharedSkills from "/mod/_core/skillset/skills.js";
+import * as sharedSkills from "../skillset/skills.js";
 
 export const ONSCREEN_TOP_LEVEL_SKILL_FILE_PATTERN = sharedSkills.TOP_LEVEL_SKILL_FILE_PATTERN;
 export const ONSCREEN_SKILL_LOAD_HOOK_KEY = "__spaceOnscreenAgentOnSkillLoad";

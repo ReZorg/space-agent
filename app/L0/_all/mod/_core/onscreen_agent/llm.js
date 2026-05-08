@@ -1,4 +1,4 @@
-import * as config from "/mod/_core/onscreen_agent/config.js";
+import * as config from "./config.js";
 import {
   buildPromptLongMessagePlaceholder,
   buildPromptOverflowTrimPlan,
@@ -10,14 +10,14 @@ import {
   normalizePromptItemDefinition,
   normalizePromptItemMap,
   trimPromptLongMessage
-} from "/mod/_core/agent_prompt/prompt-items.js";
-import { createAgentPromptInstance } from "/mod/_core/agent_prompt/prompt-runtime.js";
-import { buildMessagePromptParts, MESSAGE_PROMPT_PART_BLOCK } from "/mod/_core/onscreen_agent/attachments.js";
-import * as llmParams from "/mod/_core/onscreen_agent/llm-params.js";
-import * as skills from "/mod/_core/onscreen_agent/skills.js";
-import { mergeConsecutiveChatMessages } from "/mod/_core/framework/js/chat-messages.js";
-import { countTextTokens } from "/mod/_core/framework/js/token-count.js";
-import * as proxyUrl from "/mod/_core/framework/js/proxy-url.js";
+} from "../agent_prompt/prompt-items.js";
+import { createAgentPromptInstance } from "../agent_prompt/prompt-runtime.js";
+import { buildMessagePromptParts, MESSAGE_PROMPT_PART_BLOCK } from "./attachments.js";
+import * as llmParams from "./llm-params.js";
+import * as skills from "./skills.js";
+import { mergeConsecutiveChatMessages } from "../framework/js/chat-messages.js";
+import { countTextTokens } from "../framework/js/token-count.js";
+import * as proxyUrl from "../framework/js/proxy-url.js";
 
 export const DEFAULT_ONSCREEN_AGENT_SYSTEM_PROMPT_PATH = "/mod/_core/onscreen_agent/prompts/system-prompt.md";
 export const ONSCREEN_AGENT_HISTORY_COMPACT_MODE = Object.freeze({

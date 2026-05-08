@@ -1,4 +1,4 @@
-import { listPromptItems } from "/mod/_core/agent_prompt/prompt-items.js";
+import { listPromptItems } from "../agent_prompt/prompt-items.js";
 
 export const SYSTEM_PROMPT_INCLUDE_FILE_PATTERN = "**/*.system.include.md";
 export const TRANSIENT_PROMPT_INCLUDE_FILE_PATTERN = "**/*.transient.include.md";

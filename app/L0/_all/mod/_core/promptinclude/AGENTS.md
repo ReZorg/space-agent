@@ -28,6 +28,7 @@ This scope owns:
 - transient prompt-include content should render one fenced block per file and must preserve the file body text exactly
 - keyed prompt-include item builders should preserve explicit caller-supplied `key`, `order`, `trimAllowed`, `trimPriority`, and transient `heading` metadata when present, while still defaulting to deterministic path-derived keys and alphabetical order
 - this module should fail soft during system or transient injection: discovery or read errors may log locally, but they should not break the whole chat surface
+- module-local imports in this subtree should use relative module paths so prompt-include helpers stay importable in direct Node.js tests without browser-only `/mod/...` resolution
 
 ## Development Guidance
 

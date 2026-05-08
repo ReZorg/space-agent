@@ -151,23 +151,54 @@ function laneTests(catalog, laneName, includeHeavyOverride, includeQuarantinedOv
     throw new Error(`Unknown lane "${laneName}" in lane catalog.`);
   }
 
-  const categories = new Set(Array.isArray(lane.categories) ? lane.categories : []);
-  if (categories.size === 0) {
-    throw new Error(`Lane "${laneName}" does not define categories.`);
-  }
-
   const includeHeavy = includeHeavyOverride ?? Boolean(lane.includeHeavy);
   const includeQuarantined = includeQuarantinedOverride ?? Boolean(lane.includeQuarantined);
-  const selected = Object.entries(catalog.tests || {})
-    .filter(([, meta = {}]) => categories.has(String(meta.category || "")))
-    .filter(([, meta = {}]) => includeHeavy || !meta.heavy)
-    .filter(([, meta = {}]) => includeQuarantined || !meta.quarantined)
-    .map(([id, meta = {}]) => ({
+  const allTests = catalog.tests || {};
+  const explicitLaneTests = Array.isArray(lane.tests)
+    ? [...new Set(lane.tests.map((value) => String(value || "").trim()).filter(Boolean))]
+    : [];
+  let selected = [];
+
+  if (explicitLaneTests.length > 0) {
+    selected = explicitLaneTests.map((id) => {
+      const meta = allTests[id];
+      if (!meta) {
+        throw new Error(`Lane "${laneName}" references unknown test "${id}".`);
+      }
+      return {
+        category: String(meta.category || ""),
+        flakyProne: Boolean(meta.flakyProne),
+        heavy: Boolean(meta.heavy),
+        quarantined: Boolean(meta.quarantined),
+        id
+      };
+    });
+  } else {
+    const categories = new Set(Array.isArray(lane.categories) ? lane.categories : []);
+    if (categories.size === 0) {
+      throw new Error(`Lane "${laneName}" does not define categories or explicit tests.`);
+    }
+
+    selected = Object.entries(allTests)
+      .filter(([, meta = {}]) => categories.has(String(meta.category || "")))
+      .map(([id, meta = {}]) => ({
+        category: String(meta.category || ""),
+        flakyProne: Boolean(meta.flakyProne),
+        heavy: Boolean(meta.heavy),
+        quarantined: Boolean(meta.quarantined),
+        id
+      }));
+  }
+
+  selected = selected
+    .filter((meta = {}) => includeHeavy || !meta.heavy)
+    .filter((meta = {}) => includeQuarantined || !meta.quarantined)
+    .map((meta = {}) => ({
       category: String(meta.category || ""),
       flakyProne: Boolean(meta.flakyProne),
       heavy: Boolean(meta.heavy),
       quarantined: Boolean(meta.quarantined),
-      id
+      id: String(meta.id || "")
     }))
     .sort((left, right) => left.id.localeCompare(right.id));
 

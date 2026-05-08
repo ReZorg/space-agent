@@ -32,6 +32,7 @@ Current shared runtime contract:
 - `getPromptInput()` returns a cloned snapshot so callers cannot mutate the runtime-owned cached prompt input directly
 - prompt inputs are treated as plain structured data; builders must not leave live runtime objects, functions, DOM nodes, or other non-cloneable values inside the cached prompt input
 - the runtime clones prompt context and prompt-input snapshots defensively; when `structuredClone(...)` rejects a non-cloneable value, the fallback clone keeps plain JSON-like data and drops runtime-only values instead of crashing prompt-history or retry flows
+- module-local imports in this subtree should use relative module paths so the same code can run both in browser `/mod/...` resolution and direct Node.js test imports
 - this module must not depend on surface-specific prompt-entry shapes beyond cloning and caching them
 
 ## Development Guidance
