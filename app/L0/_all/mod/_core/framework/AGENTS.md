@@ -84,6 +84,7 @@ Rules:
 
 - do not import `extensions.js` from feature modules just to reach `space.extend`; use `globalThis.space.extend(...)`
 - do not publish the runtime into `parent`, `top`, or sibling frames
+- framework utility modules should prefer relative in-subtree imports for sibling helpers and vendor files so they remain directly importable in Node.js test contexts in addition to browser `/mod/...` resolution
 - framework bootstrap registers `x-inject="selector"` for `<template>` roots; it mirrors Alpine `x-teleport`, waits for a matching selector with a `MutationObserver`, and disconnects that wait when the source template cleans up, so route-owned markup can safely target shell seams that may mount later
 - `css/index.css` installs the app-wide border-box sizing baseline; modules may rely on `width: 100%` including padding and borders unless they explicitly opt an element back into content-box sizing
 - if bootstrap order changes, update this doc and `/app/AGENTS.md`
